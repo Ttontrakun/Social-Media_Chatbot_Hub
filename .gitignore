@@ -1,0 +1,11 @@
+# ความลับ ห้าม commit
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# ของที่ build ขึ้นมาใหม่ได้
+node_modules/
+dist/
+backend/src/generated/

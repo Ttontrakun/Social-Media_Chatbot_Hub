@@ -1,0 +1,241 @@
+// Social Media Chatbot Hub — schema
+// ทุกตารางผูกกับ workspace เพื่อรองรับหลายร้าน/หลายองค์กรในระบบเดียว
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  OWNER
+  ADMIN
+  AGENT
+}
+
+enum Channel {
+  LINE
+  FACEBOOK
+  INSTAGRAM
+  X
+}
+
+enum ConnectionStatus {
+  CONNECTED
+  EXPIRED
+  DISCONNECTED
+}
+
+enum ConversationMode {
+  BOT
+  HUMAN
+}
+
+enum ConversationStatus {
+  OPEN
+  CLOSED
+}
+
+enum Direction {
+  IN
+  OUT
+}
+
+enum Sender {
+  CUSTOMER
+  BOT
+  AGENT
+  SYSTEM
+}
+
+enum DocStatus {
+  PENDING
+  PROCESSING
+  READY
+  FAILED
+}
+
+enum BotMode {
+  AUTO // บอทตอบลูกค้าเอง
+  DRAFT // บอทร่างคำตอบให้พนักงานกดส่ง
+}
+
+model User {
+  id           String      @id @default(cuid())
+  email        String      @unique
+  name         String
+  passwordHash String
+  createdAt    DateTime    @default(now())
+  memberships  Membership[]
+}
+
+model Workspace {
+  id          String       @id @default(cuid())
+  name        String
+  createdAt   DateTime     @default(now())
+  members     Membership[]
+  connections Connection[]
+  contacts    Contact[]
+  conversations Conversation[]
+  documents   Document[]
+  settings    BotSetting?
+  apiKeys     ApiKey[]
+  events      EventLog[]
+}
+
+model Membership {
+  id          String    @id @default(cuid())
+  userId      String
+  workspaceId String
+  role        Role      @default(OWNER)
+  createdAt   DateTime  @default(now())
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, workspaceId])
+}
+
+/// บัญชีของแต่ละแพลตฟอร์มที่เชื่อมเข้ามา (1 เพจ / 1 LINE OA = 1 แถว)
+model Connection {
+  id          String           @id @default(cuid())
+  workspaceId String
+  channel     Channel
+  /// page_id (Meta), destination (LINE), user id (X) — ใช้ route webhook เข้าหา workspace
+  externalId  String
+  accountName String
+  status      ConnectionStatus @default(CONNECTED)
+  botEnabled  Boolean          @default(true)
+  /// ข้อมูลลับ (access token, channel secret) เข้ารหัส AES-256-GCM ก่อนเก็บ
+  secrets     String?
+  lastError   String?
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  workspace   Workspace        @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  conversations Conversation[]
+
+  @@unique([channel, externalId])
+  @@index([workspaceId])
+}
+
+model Contact {
+  id            String         @id @default(cuid())
+  workspaceId   String
+  displayName   String
+  avatarColor   String?
+  tags          String[]       @default([])
+  createdAt     DateTime       @default(now())
+  workspace     Workspace      @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  identities    ContactIdentity[]
+  conversations Conversation[]
+
+  @@index([workspaceId])
+}
+
+/// ลูกค้าคนเดียวกันที่ทักมาหลายช่องทาง — merge เป็น Contact เดียว
+model ContactIdentity {
+  id          String  @id @default(cuid())
+  /// เก็บ workspace ไว้ตรงนี้ด้วย เพื่อให้ id เดียวกันของคนละองค์กรไม่ถูกจับรวมกัน
+  workspaceId String
+  contactId   String
+  channel     Channel
+  externalId  String
+  handle      String?
+  contact     Contact @relation(fields: [contactId], references: [id], onDelete: Cascade)
+
+  @@unique([workspaceId, channel, externalId])
+  @@index([contactId])
+}
+
+model Conversation {
+  id           String             @id @default(cuid())
+  workspaceId  String
+  connectionId String
+  contactId    String
+  mode         ConversationMode   @default(BOT)
+  status       ConversationStatus @default(OPEN)
+  /// true เมื่อข้อความล่าสุดเป็นของลูกค้าและบอทไม่ได้ดูแลอยู่ → badge สีแดง
+  awaitingStaff Boolean           @default(false)
+  unread       Int                @default(0)
+  assignee     String?
+  lastMessageAt DateTime          @default(now())
+  createdAt    DateTime           @default(now())
+  workspace    Workspace          @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  connection   Connection         @relation(fields: [connectionId], references: [id], onDelete: Cascade)
+  contact      Contact            @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  messages     Message[]
+
+  @@index([workspaceId, lastMessageAt])
+}
+
+model Message {
+  id             String       @id @default(cuid())
+  conversationId String
+  direction      Direction
+  sender         Sender
+  body           String
+  /// ชื่อไฟล์เอกสารที่บอทใช้อ้างอิงตอบ
+  sources        String[]     @default([])
+  externalId     String?
+  createdAt      DateTime     @default(now())
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId, createdAt])
+}
+
+model Document {
+  id          String    @id @default(cuid())
+  workspaceId String
+  filename    String
+  mimeType    String
+  bytes       Int
+  status      DocStatus @default(PENDING)
+  chunkCount  Int       @default(0)
+  error       String?
+  createdAt   DateTime  @default(now())
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId])
+}
+
+model BotSetting {
+  workspaceId  String    @id
+  persona      String    @default("เป็นแอดมินร้าน พูดสุภาพ ตอบสั้นกระชับ ใช้ภาษาเดียวกับลูกค้า ตอบจากฐานความรู้เท่านั้น ห้ามเดา")
+  mode         BotMode   @default(DRAFT)
+  handoverTopics String[] @default(["ร้องเรียน", "คืนเงิน", "ชำระเงิน"])
+  fallback     String    @default("ขออภัยค่ะ ขอตรวจสอบข้อมูลและแจ้งกลับให้นะคะ")
+  /// คะแนนความใกล้เคียงขั้นต่ำที่ยอมให้บอทตอบ ต่ำกว่านี้ถือว่าไม่พบคำตอบ
+  minScore     Float     @default(0.35)
+  topK         Int       @default(5)
+  updatedAt    DateTime  @updatedAt
+  workspace    Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+}
+
+model ApiKey {
+  id          String    @id @default(cuid())
+  workspaceId String
+  name        String
+  /// เก็บเฉพาะ hash ของ key — ตัว key เต็มแสดงครั้งเดียวตอนสร้าง
+  keyHash     String    @unique
+  prefix      String
+  webhookUrl  String?
+  webhookOn   Boolean   @default(false)
+  lastUsedAt  DateTime?
+  createdAt   DateTime  @default(now())
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId])
+}
+
+model EventLog {
+  id          String    @id @default(cuid())
+  workspaceId String
+  kind        String
+  message     String
+  createdAt   DateTime  @default(now())
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId, createdAt])
+}

@@ -41,7 +41,7 @@ nav.rail{flex:0 0 84px;background:var(--rail);padding:14px 0;display:flex;flex-d
 .view.on{display:flex}
 
 /* ---------- inbox: list ---------- */
-.list{flex:0 0 360px;background:var(--panel);border-right:1px solid var(--line);display:flex;flex-direction:column;max-height:100vh}
+.list{flex:0 0 var(--list-w,360px);min-width:0;background:var(--panel);border-right:1px solid var(--line);display:flex;flex-direction:column;max-height:100vh}
 .list-head{padding:20px 20px 14px;display:flex;flex-direction:column;gap:14px}
 .list-head h1{margin:0;font-size:21px;line-height:1.3}
 .head-row{display:flex;align-items:center;justify-content:space-between;gap:8px}
@@ -57,12 +57,13 @@ nav.rail{flex:0 0 84px;background:var(--rail);padding:14px 0;display:flex;flex-d
 .chip.on{background:var(--ink);border-color:var(--ink);color:#fff;font-weight:600}
 .ghost{height:36px;border:1px dashed var(--line2);border-radius:10px;background:transparent;color:var(--muted);font-size:13px}
 .ghost:hover{background:var(--soft);color:var(--ink)}
-.items{flex:1;overflow:auto;border-top:1px solid var(--line)}
-.item{display:flex;gap:12px;padding:14px 20px;border:0;border-bottom:1px solid var(--line);background:#fff;width:100%;text-align:left}
+.items{flex:1;min-width:0;overflow:auto;border-top:1px solid var(--line)}
+.item{display:flex;gap:12px;padding:14px 20px;border:0;border-bottom:1px solid var(--line);background:#fff;width:100%;min-width:0;text-align:left}
 .item:hover{background:var(--soft)}
 .item.sel{background:var(--accent-soft)}
 .item .body{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
-.item .row{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.item .row{display:flex;justify-content:space-between;align-items:baseline;gap:8px;min-width:0}
+.item .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .item .when{font-size:12px;color:var(--muted);white-space:nowrap}
 .item .snip{font-size:13px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .item.unread .snip{color:var(--ink)}
@@ -77,7 +78,11 @@ nav.rail{flex:0 0 84px;background:var(--rail);padding:14px 0;display:flex;flex-d
 .badge.urgent{background:var(--urgent)}
 
 /* ---------- inbox: conversation ---------- */
-.conv{flex:1 1 480px;min-width:0;display:flex;flex-direction:column;background:var(--soft);max-height:100vh}
+.conv{flex:1 1 320px;min-width:320px;display:flex;flex-direction:column;background:var(--soft);max-height:100vh}
+.split{flex:0 0 8px;margin:0 -4px;padding:0;border:0;background:transparent;cursor:col-resize;position:relative;z-index:3;touch-action:none}
+.split::before{content:"";position:absolute;top:0;bottom:0;left:3px;width:2px;background:transparent}
+.split:hover::before,.split:focus-visible::before,.split.drag::before{background:var(--accent)}
+body.col-drag,body.col-drag *{cursor:col-resize!important;user-select:none}
 .conv-head{display:flex;flex-wrap:wrap;align-items:center;gap:12px;padding:14px 24px;background:#fff;border-bottom:1px solid var(--line)}
 .conv-head .who{flex:1 1 160px;min-width:0}
 .seg{display:flex;padding:3px;border-radius:22px;background:var(--bg)}
@@ -107,7 +112,7 @@ nav.rail{flex:0 0 84px;background:var(--rail);padding:14px 0;display:flex;flex-d
 .composer textarea{flex:1;min-width:0;padding:10px 14px;border:1px solid var(--line2);border-radius:12px;resize:none;outline:0;background:var(--soft)}
 .composer textarea:focus{background:#fff;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
 .field:focus{outline:2px solid var(--accent);outline-offset:1px}
-.side{flex:0 0 300px;background:#fff;border-left:1px solid var(--line);padding:24px 22px;display:flex;flex-direction:column;gap:22px;overflow:auto;max-height:100vh}
+.side{flex:0 0 var(--side-w,300px);min-width:0;background:#fff;border-left:1px solid var(--line);padding:24px 22px;display:flex;flex-direction:column;gap:22px;overflow:auto;max-height:100vh}
 .side h2{margin:0 0 10px;font-size:12px;font-weight:600;color:var(--muted)}
 .empty{margin:auto;color:var(--muted);text-align:center;padding:32px}
 .hist div{display:flex;gap:10px;font-size:13px;margin-bottom:8px}.hist span:first-child{flex:0 0 64px;color:var(--muted)}
@@ -167,78 +172,6 @@ nav.rail{flex:0 0 84px;background:var(--rail);padding:14px 0;display:flex;flex-d
 .dt th[scope=row],.dt th:first-child{text-align:left;font-weight:500}
 .dt thead th{color:var(--muted);font-weight:600;position:sticky;top:0;background:#fff}
 
-/* ---------- kb, channels, settings, api ---------- */
-#view-kb .page,#view-channels .page,#view-settings .page,#view-api .page{min-height:100vh}
-#view-kb .page>*,#view-channels .page>*,#view-settings .page>*,#view-api .page>*{max-width:none}
-.panel{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px 20px;display:flex;flex-direction:column;gap:12px;min-width:0}
-.panel h2{margin:0;font-size:15px;font-weight:600}
-.hint{margin:0;color:var(--muted);font-size:13px}
-.hint.foot{margin-top:auto}
-.page-split{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(300px,.72fr);gap:16px;align-items:stretch}
-#kblist{display:flex;flex-direction:column}
-.samples{display:flex;flex-direction:column;gap:8px;margin-top:6px;padding-top:14px;border-top:1px solid var(--line)}
-.samples h3{margin:0;font-size:13px;font-weight:600}
-.sample{padding:8px 0}
-.sample b{display:block;font-size:13px}
-.doc{display:flex;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid var(--line)}
-.doc:first-child{padding-top:2px}
-.doc:last-child{border-bottom:0;padding-bottom:2px}
-.ficon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:11px;flex:0 0 auto}
-.doc .meta{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
-.doc .meta b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.docsub{font-size:13px;color:var(--muted)}
-.cover{display:flex;gap:10px;align-items:flex-start;padding:12px 0;border-top:1px solid var(--line)}
-.cover .dot{margin:5px 0 0}
-.cover .body{flex:1;min-width:0}
-.chgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-content:start}
-.chcard{background:#fff;border:1px solid var(--line);border-radius:14px;border-top:3px solid var(--line2);padding:18px 20px;display:flex;flex-direction:column;gap:12px;min-width:0}
-.chcard.ok{border-top-color:#1A9E5C}
-.chcard.warn{border-top-color:#D98A00}
-.chcard.off{border-top-color:#C5CED8}
-.chcard .top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
-.ch-id{display:flex;align-items:center;gap:12px;min-width:0}
-.ch-id .who{min-width:0}
-.ch-id .who .docsub{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.ch-glyph{width:42px;height:42px;border-radius:12px;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;flex:0 0 auto}
-.ch-bot{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;border-radius:12px;background:var(--soft)}
-.chcard .acts{display:flex;flex-wrap:wrap;gap:8px}
-.steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
-.steps b{display:block;margin-bottom:4px}
-.setlayout{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;align-items:stretch}
-#view-settings #setbox{align-items:stretch}
-.setlayout>.span2{grid-column:1 / -1}
-.modes{display:flex;flex-direction:column;gap:10px}
-.choice{display:flex;gap:12px;align-items:flex-start;padding:14px;border:1px solid var(--line);border-radius:12px;background:#fff;cursor:pointer;min-height:0}
-.choice:hover{background:var(--soft)}
-.choice:has(input:checked),.choice:has(input:checked):hover{border-color:var(--accent);background:var(--accent-soft)}
-.choice input{width:18px;height:18px;margin-top:2px;accent-color:var(--accent);flex:0 0 auto}
-.choice b{display:block;font-size:14px}
-.choice span{display:block;color:var(--muted);font-size:13px;font-weight:400}
-.topics{display:flex;flex-wrap:wrap;gap:8px}
-.topic{display:inline-flex;align-items:center;gap:2px;padding:2px 4px 2px 12px;border-radius:18px;background:var(--soft);border:1px solid var(--line2);font-size:13px}
-.topic button{width:32px;height:32px;border:0;border-radius:50%;background:transparent;font-size:18px;line-height:1}
-.topic button:hover{background:#fff}
-.addrow{display:flex;gap:8px;flex-wrap:wrap}
-#kbstats,#chstats{gap:0;background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden}
-#kbstats .kpi,#chstats .kpi{border:0;border-radius:0;border-right:1px solid var(--line)}
-#kbstats .kpi:last-child,#chstats .kpi:last-child{border-right:0}
-.addrow .field{flex:1 1 160px;height:40px}
-.actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.actions .push{margin-left:auto}
-textarea.area{width:100%;min-height:112px;padding:12px 14px;border:1px solid var(--line2);border-radius:10px;resize:vertical;background:var(--soft);line-height:1.6}
-textarea.area:focus{background:#fff;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft);outline:0}
-.apigrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;align-items:stretch}
-.flabel{display:flex;flex-direction:column;gap:6px;font-weight:600;font-size:13px}
-.flabel .field{flex:0 0 auto;width:100%;height:44px}
-.keybox{display:flex;flex-direction:column;gap:6px;padding:14px 16px;border-radius:12px;background:var(--soft);border:1px solid var(--line)}
-.keybox span{font-size:12px;font-weight:600;color:var(--muted)}
-.keybox code{font-size:15px;word-break:break-all}
-.panel-foot{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:auto;padding-top:4px}
-.panel-foot .btn{margin-left:auto}
-.logpanel{flex:1;min-height:240px}
-.loghead{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap}
-.logpanel .log{flex:1;max-height:none;min-height:160px}
-
 /* ---------- auth + modal ---------- */
 .backbtn{display:none}
 .aerr{color:var(--urgent-d);font-size:13px}
@@ -254,7 +187,7 @@ textarea.area:focus{background:#fff;border-color:var(--accent);box-shadow:0 0 0 
 .mhead button{width:44px;height:44px;border:0;border-radius:50%;background:transparent;font-size:22px}
 .mhead button:hover{background:var(--soft)}
 
-@media(max-width:1100px){.side{display:none}.charts{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:1100px){.side,#split-side{display:none}.charts{grid-template-columns:minmax(0,1fr)}}
 @media(max-width:760px){
   #app{flex-direction:column}
   nav.rail{flex-direction:row;flex:0 0 auto;padding:6px 8px;justify-content:space-between;gap:0}
@@ -263,24 +196,19 @@ textarea.area:focus{background:#fff;border-color:var(--accent);box-shadow:0 0 0 
   .rbadge{right:calc(50% - 30px)}
   .view.on{flex-direction:column}
   .list{flex:1 1 auto;max-height:none}
-  .conv{max-height:none;min-height:70vh}
+  .conv{max-height:none;min-height:70vh;min-width:0}
+  .split{display:none}
   #view-inbox:not(.chat) .conv,#view-inbox:not(.chat) .side{display:none}
   #view-inbox.chat .list{display:none}
   .backbtn{display:inline-flex;align-items:center}
   .m{max-width:88%}
   .page{padding:20px 16px;max-height:none}
-  .page-split,.setlayout,.apigrid,.chgrid,.steps{grid-template-columns:minmax(0,1fr)}
-  .page-split,.chgrid,.logpanel,#view-settings #setbox{flex:none}
-  #view-settings #setbox{grid-template-rows:none}
-  .chgrid{grid-template-rows:none}
-  .modes{flex:none}
-  .choice{flex:none}
 }
 @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 </head>
 <body>
-<div id="app">
+<div id="app" style="display:none">
   <nav class="rail" aria-label="เมนูหลัก">
     <div class="logo">U</div>
     <button class="rb on" data-view="inbox" aria-label="กล่องข้อความ" title="กล่องข้อความ"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12h5l2 3h4l2-3h5"/><path d="M5 5h14l2 7v7a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-7z"/></svg><span>แชท</span><span class="rbadge" id="railbadge" role="status" hidden></span></button>
@@ -297,90 +225,52 @@ textarea.area:focus{background:#fff;border-color:var(--accent);box-shadow:0 0 0 
   <div class="view on" id="view-inbox">
     <section class="list" aria-label="รายการแชท">
       <div class="list-head">
-        <h1>กล่องข้อความ</h1>
+        <div class="head-row"><h1>กล่องข้อความ</h1><span id="count" class="pill calm"></span></div>
         <label class="search"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input id="q" type="search" placeholder="ค้นหาชื่อหรือข้อความ" aria-label="ค้นหาชื่อหรือข้อความ"></label>
         <div class="chips" id="chips"></div>
         <button class="ghost" id="simulate">จำลองข้อความเข้ามา</button>
       </div>
       <div class="items" id="items"></div>
     </section>
+    <div class="split" id="split-list" role="separator" aria-orientation="vertical" aria-label="ลากเพื่อปรับความกว้างบทสนทนา" tabindex="0" title="ลากเพื่อปรับความกว้าง ดับเบิลคลิกเพื่อคืนค่าเดิม"></div>
     <main class="conv" id="conv"></main>
+    <div class="split" id="split-side" role="separator" aria-orientation="vertical" aria-label="ลากเพื่อปรับความกว้างบทสนทนา" tabindex="0" title="ลากเพื่อปรับความกว้าง ดับเบิลคลิกเพื่อคืนค่าเดิม"></div>
     <aside class="side" id="side" aria-label="ข้อมูลลูกค้า"></aside>
   </div>
 
   <!-- KB -->
   <div class="view" id="view-kb"><div class="page">
-    <div class="phead">
-      <div><h1>ฐานความรู้ (RAG)</h1><p class="sub">อัปโหลดเอกสารให้บอทใช้ตอบ (ต้นแบบนี้จำลองการ embed ไม่ได้ส่งไฟล์ไปไหน)</p></div>
-      <label class="up">อัปโหลดเอกสาร<input type="file" id="file" multiple aria-label="เลือกไฟล์เอกสาร"></label>
-    </div>
-    <div class="kpis" id="kbstats"></div>
-    <div class="page-split">
-      <section class="panel" id="kbdocs" aria-labelledby="kbtitle">
-        <h2 id="kbtitle">เอกสารในฐานความรู้</h2>
-        <p class="hint">ไฟล์ที่พร้อมใช้จะถูกค้นเมื่อลูกค้าทักเข้ามา</p>
-        <div id="kblist"></div>
-        <div id="kbsamples"></div>
-        <p class="hint">ลบเอกสารออกแล้ว บอทจะไม่หยิบไฟล์นั้นมาตอบอีก</p>
-      </section>
-      <aside class="panel" id="kbside" aria-label="ความครอบคลุมของฐานความรู้"></aside>
-    </div>
+    <h1>ฐานความรู้ (RAG)</h1><p class="sub">อัปโหลดเอกสารให้บอทใช้ตอบ ระบบจะแยกข้อความ ตัดเป็นช่วง และสร้างเวกเตอร์เก็บใน Qdrant</p>
+    <div id="kbengine"></div>
+    <div><label class="up">อัปโหลดเอกสาร<input type="file" id="file" multiple accept=".pdf,.docx,.xlsx,.xls,.csv,.txt,.md,.json" aria-label="เลือกไฟล์เอกสาร"></label></div>
+    <div id="kblist" style="display:flex;flex-direction:column;gap:12px"></div>
+    <div id="kbtest" style="display:flex;flex-direction:column;gap:12px;margin-top:12px"></div>
   </div></div>
 
   <!-- CHANNELS -->
   <div class="view" id="view-channels"><div class="page">
-    <div class="phead">
-      <div><h1>ช่องทางที่เชื่อมต่อ</h1><p class="sub">เชื่อมหรือตัดการเชื่อมต่อ และเปิด-ปิดบอทแยกตามช่องทาง</p></div>
-    </div>
-    <div class="kpis" id="chstats"></div>
-    <div id="chlist" class="chgrid"></div>
-    <section class="panel">
-      <h2>ข้อความเข้าแล้วเกิดอะไรขึ้น</h2>
-      <div class="steps">
-        <div><b>บอทเปิด และช่องทางพร้อมใช้</b><p class="hint">บอทตอบจากฐานความรู้ทันที ถ้าไม่พบคำตอบจะส่งข้อความสำรองแล้วส่งต่อพนักงาน</p></div>
-        <div><b>บอทปิด หรือลูกค้าขอพนักงาน</b><p class="hint">ข้อความไปรอในกล่องแชท บอทจะไม่ตอบเอง จนกว่าจะเปิดโหมดบอทอีกครั้ง</p></div>
-        <div><b>ยังไม่เชื่อม หรือต้องเชื่อมใหม่</b><p class="hint">ส่งคำตอบกลับช่องนั้นไม่ได้ ต้องเชื่อมต่อให้สำเร็จก่อน</p></div>
-      </div>
-    </section>
+    <h1>ช่องทางที่เชื่อมต่อ</h1><p class="sub">เชื่อมหรือตัดการเชื่อมต่อ และเปิด-ปิดบอทแยกตามช่องทาง</p>
+    <div id="chlist" style="display:flex;flex-direction:column;gap:12px"></div>
   </div></div>
 
   <!-- SETTINGS -->
   <div class="view" id="view-settings"><div class="page">
-    <div class="phead">
-      <div><h1>ตั้งค่าบอท</h1><p class="sub">กำหนดกรอบให้ AI ตอบ โดยไม่ต้องเขียนคำตอบเอง การเปลี่ยนค่ามีผลทันทีกับข้อความที่จำลองเข้ามา</p></div>
-    </div>
-    <div id="setbox" class="setlayout"></div>
+    <h1>ตั้งค่าบอท</h1><p class="sub">กำหนดกรอบให้ AI ตอบ โดยไม่ต้องเขียนคำตอบเอง การเปลี่ยนค่ามีผลทันทีกับข้อความที่จำลองเข้ามา</p>
+    <div id="setbox" style="display:flex;flex-direction:column;gap:24px;max-width:760px"></div>
   </div></div>
 
   <!-- API -->
   <div class="view" id="view-api"><div class="page">
-    <div class="phead">
-      <div><h1>Integrations และ API</h1><p class="sub">ตั้งค่า outbound webhook และ API key สำหรับระบบภายนอก</p></div>
-    </div>
-    <div class="apigrid">
-      <section class="panel">
-        <h2>Webhook</h2>
-        <p class="hint">ที่อยู่ที่ฮับจะยิงเหตุการณ์ออกไปเมื่อมีข้อความหรือการส่งต่อ</p>
-        <label class="flabel" for="wh">Webhook URL<input class="field" id="wh" value="https://example.com/hooks/hub" autocomplete="off"></label>
-        <div class="panel-foot"><label class="switch"><input type="checkbox" id="whon" checked> เปิดส่ง</label><button class="btn" id="whtest">ส่งทดสอบ</button></div>
-      </section>
-      <section class="panel">
-        <h2>API key</h2>
-        <p class="hint">ใช้ยืนยันตัวตนเมื่อระบบภายนอกเรียกเข้ามา ต้นแบบนี้ไม่ได้ตรวจคีย์จริง</p>
-        <div class="keybox"><span>คีย์ปัจจุบัน</span><code id="key">hub_live_••••••••••••••••</code></div>
-        <div class="panel-foot"><button class="btn" id="genkey">สร้างใหม่</button></div>
-      </section>
-    </div>
-    <section class="panel logpanel">
-      <div class="loghead"><h2>บันทึกเหตุการณ์</h2><p class="hint">เหตุการณ์ล่าสุดอยู่ด้านบน</p></div>
-      <div class="log" id="log" aria-live="polite"></div>
-    </section>
+    <h1>Integrations และ API</h1><p class="sub">ให้ระบบภายนอกรับ event จาก Hub และเรียก API ของ Hub ได้</p>
+    <div id="apibox" style="display:flex;flex-direction:column;gap:20px"></div>
+    <h2 style="margin:0;font-size:16px">บันทึกเหตุการณ์ล่าสุด</h2>
+    <div class="log" id="log" aria-live="polite"></div>
   </div></div>
 
   <!-- DASH -->
   <div class="view" id="view-dash"><div class="page">
     <div class="phead">
-      <div><h1>แดชบอร์ด</h1><p class="sub">ข้อมูลตัวอย่างย้อนหลัง 30 วัน ส่วนของวันนี้รวมข้อความที่จำลองในหน้ากล่องข้อความ</p></div>
+      <div><h1>แดชบอร์ด</h1><p class="sub">คำนวณจากข้อความจริงในระบบ</p></div>
       <div class="filters">
         <div class="seg" role="group" aria-label="ช่วงเวลา"><button data-range="7">7 วัน</button><button data-range="30">30 วัน</button></div>
         <button class="btn" id="dtable">ดูเป็นตาราง</button>
@@ -416,549 +306,6 @@ textarea.area:focus{background:#fff;border-color:var(--accent);box-shadow:0 0 0 
 
 <script src="api.js"></script>
 <script src="charts.js"></script>
-<script>
-"use strict";
-const CH = {
-  line:{label:"LINE",bg:"#E0F5E9",fg:"#0A6B34",av:"#CDEBD9",solid:"#07A34B",glyph:"L"},
-  fb:{label:"Facebook",bg:"#E3EEFD",fg:"#0F4FB8",av:"#D6E4FA",solid:"#1877F2",glyph:"f"},
-  ig:{label:"Instagram",bg:"#FBE6F0",fg:"#A3154F",av:"#F9D9E6",solid:"#C13584",glyph:"I"},
-  x:{label:"X",bg:"#E8EAED",fg:"#18212D",av:"#E1E3E8",solid:"#18212D",glyph:"X"}
-};
-const state = {
-  view:"inbox", filter:"all", q:"", sel:"c1", nextId:10, dash:{range:7,table:false},
-  chan:{line:{on:true,bot:true,acct:"ร้านตัวอย่าง (LINE OA)"},fb:{on:true,bot:true,acct:"เพจ ร้านตัวอย่าง"},ig:{on:true,bot:true,acct:"@shop_example"},x:{on:false,bot:false,acct:""}},
-  cfg:{
-    role:"เป็นแอดมินร้านตัวอย่าง พูดสุภาพ ตอบสั้นกระชับ ใช้ภาษาเดียวกับลูกค้า ตอบจากฐานความรู้เท่านั้น ห้ามเดา",
-    mode:"auto",
-    topics:["ร้องเรียน","คืนเงิน","ชำระเงิน"],
-    fallback:"ขออภัยค่ะ ขอตรวจสอบข้อมูลและแจ้งกลับให้นะคะ"
-  },
-  kb:[{name:"คู่มือสินค้า.pdf",st:"ready"},{name:"นโยบายการจัดส่ง.docx",st:"ready"},{name:"ราคาและโปรโมชัน.xlsx",st:"ready"}],
-  log:[], counts:{msgs:0,bot:0},
-  convs:[
-    {id:"c1",name:"สมชาย ใจดี",ch:"line",mode:"human",unread:2,closed:false,msgs:[
-      {f:"cust",t:"สินค้ารุ่นนี้มีสีอะไรบ้างครับ",time:"09:12"},
-      {f:"bot",t:"รุ่นนี้มี 3 สี คือ ดำ ขาว และเขียวมะนาว สีเขียวเหลือสต็อกไม่มากค่ะ",time:"09:12",src:"คู่มือสินค้า.pdf"},
-      {f:"cust",t:"ขอคุยกับพนักงานหน่อยครับ",time:"09:14"},
-      {f:"sys",t:"ลูกค้าขอคุยกับพนักงาน — Bot หยุดตอบอัตโนมัติแล้ว"}]},
-    {id:"c2",name:"Anna Wong",ch:"fb",mode:"bot",unread:0,closed:false,msgs:[
-      {f:"cust",t:"ส่งของวันไหนคะ",time:"08:58"},
-      {f:"bot",t:"จัดส่งภายใน 2-3 วันทำการหลังชำระเงินค่ะ",time:"08:58",src:"นโยบายการจัดส่ง.docx"}]},
-    {id:"c3",name:"มะลิ",ch:"ig",mode:"bot",unread:1,closed:false,msgs:[
-      {f:"cust",t:"ราคาเซ็ตนี้เท่าไหร่คะ",time:"08:10"}]},
-    {id:"c4",name:"@tom_dev",ch:"x",mode:"bot",unread:0,closed:true,msgs:[
-      {f:"cust",t:"Thanks, got it!",time:"06:30"}]},
-    {id:"c5",name:"คุณวิภา",ch:"line",mode:"human",unread:0,closed:false,msgs:[
-      {f:"cust",t:"โอนแล้วนะคะ",time:"เมื่อวาน"},
-      {f:"staff",t:"ได้รับยอดแล้วค่ะ ขอบคุณมากนะคะ",time:"เมื่อวาน"}]}
-  ]
-};
-const SAMPLES = [
-  {ch:"line",name:"ปรีชา",t:"สีเขียวยังมีของไหมครับ"},
-  {ch:"fb",name:"Nok Sirin",t:"ค่าส่งเท่าไหร่คะ ส่งกี่วัน"},
-  {ch:"ig",name:"ฟ้า",t:"มีโปรโมชันอะไรบ้างคะ ราคาเท่าไหร่"},
-  {ch:"line",name:"ธนากร",t:"อยากเปลี่ยนที่อยู่จัดส่งครับ"}
-];
-const $ = (s,r=document)=>r.querySelector(s);
-const el = (tag,props={},...kids)=>{const e=document.createElement(tag);for(const k in props){if(k==="class")e.className=props[k];else if(k==="style")e.style.cssText=props[k];else if(k.startsWith("on"))e.addEventListener(k.slice(2),props[k]);else e.setAttribute(k,props[k]);}for(const c of kids){if(c==null)continue;e.append(c.nodeType?c:document.createTextNode(c));}return e;};
-const now = ()=>new Date().toLocaleTimeString("th-TH",{hour:"2-digit",minute:"2-digit",hour12:false});
-function toast(t){const e=$("#toast");e.textContent=t;e.classList.add("on");clearTimeout(toast.h);toast.h=setTimeout(()=>e.classList.remove("on"),1800);}
-function log(t){state.log.unshift(`[${now()}] ${t}`);state.log=state.log.slice(0,40);renderLog();}
-function cur(){return state.convs.find(c=>c.id===state.sel);}
-function needsStaff(c){
-  const cfg=state.chan[c.ch];
-  const botAvail=cfg.on&&!cfg.expired&&cfg.bot;
-  const last=[...c.msgs].reverse().find(m=>m.f!=="sys");
-  return !c.closed&&(c.mode==="human"||!botAvail)&&!!last&&last.f==="cust";
-}
-function lastText(c){const m=[...c.msgs].reverse().find(m=>m.f!=="sys");return m?(m.f==="bot"?"Bot: ":m.f==="staff"?"คุณ: ":"")+m.t:"";}
-function avatar(c,size){const s=CH[c.ch];return el("div",{class:"avatar",style:`width:${size}px;height:${size}px;background:${s.av};color:${s.fg};font-size:${Math.round(size/2.6)}px`},c.name.replace("@","").charAt(0).toUpperCase());}
-function avatarB(c,size){const s=CH[c.ch];return el("div",{class:"avwrap",style:`width:${size}px;height:${size}px`},avatar(c,size),el("span",{class:"abadge","aria-hidden":"true",style:`background:${s.solid}`},s.glyph));}
-function tag(txt,bg,fg){return el("span",{class:"tag",style:`background:${bg};color:${fg}`},txt);}
-
-/* ---------- bot logic ---------- */
-function botAnswer(text){
-  const kb = n=>state.kb.find(d=>d.name.includes(n)&&d.st==="ready");
-  if(/ราคา|โปร|เท่าไหร่/.test(text)&&kb("ราคา")) return {t:"เซ็ตนี้ราคา 1,290 บาท และตอนนี้ลด 10% เมื่อสั่งครบ 2 ชิ้นค่ะ",src:"ราคาและโปรโมชัน.xlsx"};
-  if(/ส่ง|จัดส่ง|ค่าส่ง/.test(text)&&kb("จัดส่ง")) return {t:"จัดส่งภายใน 2-3 วันทำการ ค่าส่ง 40 บาท ส่งฟรีเมื่อซื้อครบ 1,000 บาทค่ะ",src:"นโยบายการจัดส่ง.docx"};
-  if(/สี|ดำ|ขาว|เขียว|สต็อก|ของ/.test(text)&&kb("สินค้า")) return {t:"รุ่นนี้มี 3 สี คือ ดำ ขาว และเขียวมะนาว สีเขียวเหลือสต็อกไม่มากค่ะ",src:"คู่มือสินค้า.pdf"};
-  return null;
-}
-function receive(c,text){
-  c.msgs.push({f:"cust",t:text,time:now()});
-  state.counts.msgs++;state.counts.ch=state.counts.ch||{};state.counts.ch[c.ch]=(state.counts.ch[c.ch]||0)+1;
-  if(c.id!==state.sel) c.unread++;
-  log(`message.received ${CH[c.ch].label} จาก ${c.name}`);
-  const cfg=state.chan[c.ch];
-  if(c.mode==="bot"){
-    if(!cfg.on||!cfg.bot||cfg.expired){c.msgs.push({f:"sys",t:cfg.expired?`ช่องทาง ${CH[c.ch].label} ต้องเชื่อมต่อใหม่ — บอทตอบกลับไม่ได้`:`บอทของ ${CH[c.ch].label} ปิดอยู่ — รอพนักงานตอบ`});render();return;}
-    const hit=state.cfg.topics.find(t=>text.includes(t));
-    if(hit){c.mode="human";c.msgs.push({f:"sys",t:`หัวข้อ "${hit}" ต้องให้พนักงานดูแล — ส่งต่อแล้ว`});log(`handover ${c.name} (หัวข้อ: ${hit})`);render();return;}
-    if(state.cfg.mode==="draft"){c.mode="human";c.msgs.push({f:"sys",t:"โหมดร่างคำตอบ — AI เตรียมร่างให้แอดมินกดส่ง"});log(`draft.prepared ${c.name}`);render();return;}
-    setTimeout(()=>{
-      const a=botAnswer(text);
-      if(a){c.msgs.push({f:"bot",t:a.t,time:now(),src:a.src});state.counts.bot++;log(`bot.replied ${c.name} (อ้างอิง ${a.src})`);}
-      else{c.msgs.push({f:"bot",t:state.cfg.fallback,time:now()});c.mode="human";c.msgs.push({f:"sys",t:"บอทไม่พบคำตอบในฐานความรู้ — ส่งต่อให้พนักงาน"});log(`handover ${c.name} → พนักงาน`);}
-      render();
-    },700);
-  }
-  render();
-}
-function send(c,text){
-  if(!text.trim())return;
-  const cc=state.chan[c.ch];
-  if(!cc.on||cc.expired){toast("ส่งไม่สำเร็จ: ช่องทาง "+CH[c.ch].label+(cc.on?" ต้องเชื่อมต่อใหม่":" ยังไม่ได้เชื่อมต่อ"));log(`message.failed ${CH[c.ch].label} ถึง ${c.name}`);return;}
-  if(c.mode==="bot"){c.mode="human";c.msgs.push({f:"sys",t:"พนักงานเข้ามาตอบ — Bot หยุดอัตโนมัติ"});}
-  c.msgs.push({f:"staff",t:text.trim(),time:now()});
-  c.draftText="";
-  state.counts.staff=(state.counts.staff||0)+1;
-  log(`message.sent ${CH[c.ch].label} ถึง ${c.name}`);
-  render();
-}
-
-/* ---------- renderers ---------- */
-function renderChips(){
-  const box=$("#chips");box.replaceChildren();
-  [["all","ทั้งหมด"],["line","LINE"],["fb","Facebook"],["ig","Instagram"],["x","X"]].forEach(([k,l])=>{
-    box.append(el("button",{class:"chip"+(state.filter===k?" on":""),onclick:()=>{state.filter=k;render();}},l));
-  });
-}
-function visible(){
-  const list=state.convs.filter(c=>(state.filter==="all"||c.ch===state.filter)&&(!state.q||(c.name+lastText(c)).toLowerCase().includes(state.q.toLowerCase())));
-  const rank=c=>c.closed?2:needsStaff(c)?0:1;
-  return list.map((c,i)=>[c,i]).sort((a,b)=>rank(a[0])-rank(b[0])||a[1]-b[1]).map(x=>x[0]);
-}
-function renderList(){
-  const list=visible();
-  const box=$("#items");box.replaceChildren();
-  if(!list.length)box.append(el("div",{class:"empty"},"ไม่พบบทสนทนา ลองเปลี่ยนตัวกรองหรือคำค้นหา"));
-  list.forEach(c=>{
-    const s=CH[c.ch],need=needsStaff(c);
-    const st=c.closed?tag("ปิดเคสแล้ว","#EEF1F5","#5A6676"):need?tag("รอพนักงาน","#FDECEA","#9B1C16"):c.mode==="bot"?tag("บอทดูแล","#E3F3F0","#0B5C56"):tag("พนักงานตอบแล้ว","#EEF1F5","#18212D");
-    box.append(el("button",{class:"item"+(c.id===state.sel?" sel":"")+(c.unread?" unread":""),"aria-current":c.id===state.sel?"true":"false",onclick:()=>{state.sel=c.id;c.unread=0;state.chat=true;render();}},
-      avatarB(c,46),
-      el("div",{class:"body"},
-        el("div",{class:"row"},el("span",{class:"nm"},c.name),el("span",{class:"when"},(c.msgs.filter(m=>m.time).slice(-1)[0]||{}).time||"")),
-        el("div",{class:"snip"},lastText(c)),
-        el("div",{class:"tags"},tag(s.label,s.bg,s.fg),st,c.unread?el("span",{class:"badge"+(need?" urgent":""),"aria-label":`ข้อความใหม่ ${c.unread}`+(need?" รอพนักงาน":"")},String(c.unread)):null))));
-  });
-}
-function renderConv(){
-  const box=$("#conv");box.replaceChildren();const c=cur();
-  if(!c){box.append(el("div",{class:"empty"},"เลือกบทสนทนาจากรายการด้านซ้าย"));return;}
-  const s=CH[c.ch];
-  box.append(el("header",{class:"conv-head"},el("button",{class:"btn backbtn","aria-label":"กลับไปรายการแชท",onclick:()=>{state.chat=false;render();}},"‹ กลับ"),avatar(c,44),
-    el("div",{class:"who"},el("div",{style:"font-weight:700;font-size:16px"},c.name),el("div",{style:"font-size:12px;color:var(--muted)"},"ผ่าน "+s.label+(state.chan[c.ch].acct?" · "+state.chan[c.ch].acct:""))),
-    el("span",{style:"font-size:13px;color:var(--muted)"},"โหมด"),
-    el("div",{class:"seg",role:"group","aria-label":"สลับโหมดบอทและพนักงาน"},
-      el("button",{class:c.mode==="bot"?"on":"",onclick:()=>{if(c.mode!=="bot"){c.mode="bot";c.msgs.push({f:"sys",t:"เปิดโหมด Bot อีกครั้ง"});log(`mode → bot ${c.name}`);render();}}},"Bot"),
-      el("button",{class:c.mode==="human"?"on":"",onclick:()=>{if(c.mode!=="human"){c.mode="human";c.msgs.push({f:"sys",t:"สลับเป็นพนักงานตอบ"});log(`mode → human ${c.name}`);render();}}},"พนักงาน")),
-    el("button",{class:"btn",onclick:()=>{c.closed=!c.closed;toast(c.closed?"ปิดเคสแล้ว":"เปิดเคสอีกครั้ง");render();}},c.closed?"เปิดเคสใหม่":"ปิดเคส")));
-  const ms=el("div",{class:"msgs",id:"msgs"});
-  const cc=state.chan[c.ch];
-  if(!cc.on||cc.expired)ms.append(el("div",{class:"sys",style:"align-self:stretch;text-align:center;padding:10px 14px"},"ช่องทาง "+s.label+(cc.on?" ต้องเชื่อมต่อใหม่":" ยังไม่ได้เชื่อมต่อ")+" — ส่งข้อความตอบกลับไม่ได้ จนกว่าจะเชื่อมต่อในเมนู \"ช่องทาง\""));
-  c.msgs.forEach(m=>{
-    if(m.f==="sys"){ms.append(el("div",{class:"sys"},m.t));return;}
-    const meta=m.f==="bot"?`Bot · ${m.time}${m.src?" · อ้างอิง: "+m.src:""}`:m.f==="staff"?`คุณ · ${m.time}`:m.time;
-    ms.append(el("div",{class:"m "+m.f},el("div",{class:"b"},m.t),el("small",{},meta)));
-  });
-  if(c.mode==="human"&&!c.closed){
-    const last=[...c.msgs].reverse().find(m=>m.f==="cust");
-    if(last){
-      const a=botAnswer(last.t);
-      const text=a?a.t:state.cfg.fallback;
-      ms.append(el("div",{class:"draft"},
-        el("div",{class:"t"},"AI ร่างคำตอบจากฐานความรู้ (ยังไม่ได้ส่ง)"),
-        el("div",{},text),
-        el("div",{style:"display:flex;gap:8px;flex-wrap:wrap"},
-          el("button",{class:"btn pri",onclick:()=>send(c,text)},"ส่งตามร่างนี้"),
-          el("button",{class:"btn",onclick:()=>{c.draftText=text;render();const t=$("#ta");t.focus();t.setSelectionRange(t.value.length,t.value.length);}},"แก้ไขก่อนส่ง"))));
-    }
-  }
-  box.append(ms);
-  const ta=el("textarea",{id:"ta",rows:"2",placeholder:"พิมพ์ข้อความตอบกลับผ่าน "+s.label+"…","aria-label":"พิมพ์ข้อความตอบกลับ"});
-  ta.value=c.draftText||"";
-  ta.addEventListener("input",()=>{c.draftText=ta.value;});
-  ta.addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();send(c,ta.value);}});
-  box.append(el("div",{class:"composer"},
-    el("button",{class:"btn","aria-label":"แนบไฟล์",onclick:()=>toast("ต้นแบบนี้ยังไม่รองรับการแนบไฟล์")},"แนบ"),ta,
-    el("button",{class:"btn dark",onclick:()=>send(c,ta.value)},"ส่ง")));
-  ms.scrollTop=ms.scrollHeight;
-}
-function renderSide(){
-  const box=$("#side");box.replaceChildren();const c=cur();if(!c)return;
-  const linked=c.id==="c1"?["line","fb"]:[c.ch];
-  box.append(
-    el("div",{style:"display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center"},avatar(c,72),el("div",{style:"font-weight:700;font-size:18px"},c.name),el("div",{style:"font-size:13px;color:var(--muted)"},"ลูกค้าตั้งแต่ 2 ต.ค. 2026")),
-    el("div",{},el("h2",{},"ช่องทางที่รวมเป็นโปรไฟล์เดียว"),...linked.map(k=>el("div",{style:"display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border-radius:10px;background:var(--soft);margin-bottom:8px"},tag(CH[k].label,CH[k].bg,CH[k].fg),el("span",{style:"font-size:13px"},"เชื่อมแล้ว")))),
-    el("div",{},el("h2",{},"แท็ก"),el("div",{style:"display:flex;flex-wrap:wrap;gap:8px"},
-      ...(c.tags||["ลูกค้าใหม่"]).map(t=>el("span",{style:"font-size:12px;padding:4px 12px;border-radius:14px;background:var(--bg)"},t)),
-      el("button",{style:"height:28px;padding:0 12px;border:1px dashed #9AA5B4;border-radius:14px;background:#fff;color:var(--muted);font-size:12px",onclick:()=>{const t=prompt("ชื่อแท็ก");if(t){(c.tags=c.tags||["ลูกค้าใหม่"]).push(t);render();}}},"+ เพิ่มแท็ก"))),
-    el("div",{},el("h2",{},"ผู้รับผิดชอบ"),el("button",{class:"btn",style:"width:100%;height:44px;text-align:left",onclick:()=>{c.owner=c.owner?"":"ผู้ดูแล";render();}},c.owner||"ยังไม่มอบหมาย (กดเพื่อรับเคส)")),
-    el("div",{class:"hist"},el("h2",{},"ประวัติข้ามช่องทาง"),
-      el("div",{},el("span",{},"วันนี้"),el("span",{},CH[c.ch].label+" · "+(c.msgs.find(m=>m.f==="cust")||{t:""}).t.slice(0,24))),
-      el("div",{},el("span",{},"3 วันก่อน"),el("span",{},"Facebook · ถามเรื่องการจัดส่ง")),
-      el("div",{},el("span",{},"5 วันก่อน"),el("span",{},"LINE · เพิ่มเพื่อน"))));
-}
-function fileKind(name){
-  const ext=(name.split(".").pop()||"").toLowerCase();
-  const map={
-    pdf:["PDF","#FDECEA","#9B1C16"],
-    doc:["DOC","#E3EEFD","#0F4FB8"],docx:["DOC","#E3EEFD","#0F4FB8"],
-    xls:["XLS","#E3F3F0","#0B5C56"],xlsx:["XLS","#E3F3F0","#0B5C56"],csv:["CSV","#E3F3F0","#0B5C56"],
-    txt:["TXT","#EEF1F5","#18212D"]
-  };
-  return map[ext]||[(ext||"file").slice(0,4).toUpperCase(),"#EEF1F5","#18212D"];
-}
-function kbUse(name){
-  if(/ราคา|โปร/.test(name)) return "ใช้ตอบเรื่องราคาและโปรโมชัน";
-  if(/จัดส่ง|ส่ง/.test(name)) return "ใช้ตอบเรื่องการจัดส่ง";
-  if(/สินค้า|คู่มือ|สต็อก|สี/.test(name)) return "ใช้ตอบเรื่องสินค้า สี และสต็อก";
-  return "ใช้ตอบคำถามที่เกี่ยวกับไฟล์นี้";
-}
-const KB_COVER=[
-  {test:/สินค้า|คู่มือ/,title:"สินค้า สี และสต็อก",ex:"มีสีอะไรบ้าง / ยังมีของไหม"},
-  {test:/จัดส่ง|ส่ง/,title:"การจัดส่ง",ex:"ส่งกี่วัน / ค่าส่งเท่าไหร่"},
-  {test:/ราคา|โปร/,title:"ราคาและโปรโมชัน",ex:"ราคาเท่าไหร่ / มีโปรไหม"}
-];
-function renderKB(){
-  const ready=state.kb.filter(d=>d.st==="ready").length,emb=state.kb.length-ready;
-  const kpi=(v,l)=>el("div",{class:"kpi"},el("b",{},String(v)),el("span",{},l));
-  $("#kbstats").replaceChildren(kpi(state.kb.length,"เอกสารทั้งหมด"),kpi(ready,"พร้อมให้บอทใช้"),kpi(emb,"กำลังประมวลผล"));
-  const box=$("#kblist");box.replaceChildren();
-  if(!state.kb.length)box.append(el("div",{class:"empty"},"ยังไม่มีเอกสาร อัปโหลดไฟล์ด้านบนเพื่อให้บอทใช้ตอบ"));
-  state.kb.forEach((d,i)=>{
-    const [ext,bg,fg]=fileKind(d.name);
-    box.append(el("div",{class:"doc"},
-      el("div",{class:"ficon",style:`background:${bg};color:${fg}`},ext),
-      el("div",{class:"meta"},el("b",{},d.name),el("div",{class:"docsub"},d.st==="ready"?kbUse(d.name)+" · พร้อมใช้":"กำลัง embed…")),
-      el("button",{class:"btn danger",onclick:()=>{state.kb.splice(i,1);log("kb.deleted "+d.name);render();}},"ลบ")));
-  });
-  $("#kbside").replaceChildren(
-    el("h2",{},"ความครอบคลุม"),
-    el("p",{class:"hint"},"บอทตอบได้เฉพาะเรื่องที่มีเอกสารสถานะพร้อมใช้"),
-    ...KB_COVER.map(c=>{
-      const doc=state.kb.find(d=>d.st==="ready"&&c.test.test(d.name));
-      return el("div",{class:"cover"},
-        el("span",{class:"dot",style:`background:${doc?"#1A9E5C":"#C5CED8"}`}),
-        el("div",{class:"body"},el("b",{},c.title),el("div",{class:"docsub"},doc?doc.name+" · เช่น "+c.ex:"ยังไม่มีเอกสาร · เช่น "+c.ex)));
-    }),
-    el("p",{class:"hint foot"},"ถ้าไม่พบในเอกสาร บอทจะส่งข้อความสำรอง แล้วให้พนักงานตอบต่อ"));
-  const samples=[{test:/สินค้า|คู่มือ/,q:"มีสีอะไรบ้าง",a:"รุ่นนี้มี 3 สี คือ ดำ ขาว และเขียวมะนาว"},{test:/จัดส่ง|ส่ง/,q:"ส่งกี่วัน / ค่าส่งเท่าไหร่",a:"จัดส่งภายใน 2-3 วันทำการ ค่าส่ง 40 บาท"},{test:/ราคา|โปร/,q:"ราคาเท่าไหร่",a:"เซ็ตนี้ราคา 1,290 บาท และลด 10% เมื่อสั่งครบ 2 ชิ้น"}].filter(s=>state.kb.some(d=>d.st==="ready"&&s.test.test(d.name)));
-  const sm=$("#kbsamples");sm.replaceChildren();
-  if(samples.length)sm.append(el("div",{class:"samples"},el("h3",{},"ตัวอย่างคำถามที่บอทตอบได้"),...samples.map(s=>el("div",{class:"sample"},el("b",{},s.q),el("div",{class:"docsub"},s.a)))));
-}
-function renderChannels(){
-  const keys=Object.keys(CH);
-  const connected=keys.filter(k=>state.chan[k].on&&!state.chan[k].expired).length;
-  const botsOn=keys.filter(k=>{const c=state.chan[k];return c.on&&!c.expired&&c.bot;}).length;
-  const attn=keys.length-connected;
-  const kpi=(v,l,cls)=>el("div",{class:"kpi"+(cls?" "+cls:"")},el("b",{},String(v)),el("span",{},l));
-  $("#chstats").replaceChildren(
-    kpi(connected+"/"+keys.length,"เชื่อมต่อพร้อมใช้"),
-    kpi(botsOn,"บอทเปิดตอบอยู่"),
-    kpi(attn,"ต้องตรวจสอบ",attn?"urgent":""));
-  const blurb={line:"รับและตอบแชทจาก LINE Official Account",fb:"รับและตอบ Messenger ของเพจ",ig:"รับและตอบ DM ของ Instagram",x:"รับและตอบข้อความส่วนตัวบน X"};
-  const box=$("#chlist");box.replaceChildren();
-  keys.forEach(k=>{
-    const s=CH[k],cfg=state.chan[k];
-    const usable=cfg.on&&!cfg.expired;
-    const pill=!cfg.on?tag("ยังไม่เชื่อม","#EEF1F5","#5A6676"):cfg.expired?tag("ต้องเชื่อมใหม่","#FFF4DB","#7A4300"):tag("เชื่อมต่อแล้ว","#DDF0EC","#0B6B58");
-    const sw=el("label",{class:"switch"},el("input",{type:"checkbox",...(usable&&cfg.bot?{checked:""}:{}),...(usable?{}:{disabled:""}),onchange:e=>{cfg.bot=e.target.checked;log(`bot ${s.label} → ${cfg.bot?"เปิด":"ปิด"}`);toast(`Bot ${s.label} ${cfg.bot?"เปิด":"ปิด"}`);persist();}}),"Bot");
-    const btns=[];
-    if(!cfg.on) btns.push(el("button",{class:"btn pri",onclick:()=>openConnect(k)},"เชื่อมต่อ"));
-    else{
-      if(cfg.expired)btns.push(el("button",{class:"btn pri",onclick:()=>openConnect(k)},"เชื่อมต่อใหม่"));
-      else btns.push(el("button",{class:"btn",title:"ทดสอบสถานะที่ต้องเชื่อมต่อใหม่",onclick:()=>{cfg.expired=true;log(`channel ${s.label} → token หมดอายุ (จำลอง)`);toast(`${s.label}: token หมดอายุ (จำลอง)`);render();}},"จำลอง token หมดอายุ"));
-      btns.push(el("button",{class:"btn danger",onclick:()=>{cfg.on=false;cfg.expired=false;cfg.bot=false;cfg.acct="";log(`channel ${s.label} → ตัดการเชื่อมต่อ`);toast(`ตัดการเชื่อมต่อ ${s.label} แล้ว`);render();}},"ตัดการเชื่อมต่อ"));
-    }
-    box.append(el("article",{class:"chcard"+(!cfg.on?" off":cfg.expired?" warn":" ok")},
-      el("div",{class:"top"},
-        el("div",{class:"ch-id"},el("span",{class:"ch-glyph",style:`background:${s.solid}`},s.glyph),el("div",{class:"who"},el("b",{},s.label),el("div",{class:"docsub"},cfg.acct||"ยังไม่ได้เลือกบัญชี"))),
-        pill),
-      el("p",{class:"hint"},blurb[k]),
-      el("div",{class:"ch-bot"},sw,el("span",{class:"docsub"},usable?"เปิดหรือปิดบอทเฉพาะช่องนี้":"เชื่อมต่อก่อน จึงจะเปิดบอทได้")),
-      el("div",{class:"acts"},...btns)));
-  });
-}
-
-/* ---------- modal ---------- */
-let modalReturnFocus=null;
-function openModal(title,body){
-  $("#mtitle").textContent=title;$("#mbody").replaceChildren(body);
-  modalReturnFocus=document.activeElement;
-  $("#modal").hidden=false;
-  const f=$("#mbody").querySelector("input:not([readonly]),button");if(f)f.focus();
-}
-function closeModal(){
-  $("#modal").hidden=true;
-  if(modalReturnFocus&&modalReturnFocus.focus)modalReturnFocus.focus();
-}
-$("#mclose").addEventListener("click",closeModal);
-$("#modal").addEventListener("mousedown",e=>{if(e.target.id==="modal")closeModal();});
-document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("#modal").hidden)closeModal();});
-
-/* ---------- connect flows ---------- */
-const btnrow=(...b)=>el("div",{style:"display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap"},...b);
-function field(label,id,type,ph){
-  return el("label",{class:"f"},label,el("input",{class:"field",id,type:type||"text",placeholder:ph||"",autocomplete:"off",style:"flex:none;width:100%"}));
-}
-function copyText(t){
-  if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(t).then(()=>toast("คัดลอกแล้ว"),()=>toast("คัดลอกไม่สำเร็จ"));
-  else toast("เบราว์เซอร์นี้คัดลอกอัตโนมัติไม่ได้");
-}
-function connected(k,acct){
-  const cfg=state.chan[k];cfg.on=true;cfg.expired=false;cfg.bot=true;cfg.acct=acct;
-  log(`channel ${CH[k].label} → เชื่อมต่อ (${acct})`);
-  closeModal();toast("เชื่อมต่อ "+CH[k].label+" แล้ว");render();
-}
-function openConnect(k){if(k==="line")openLine();else openOAuth(k);}
-
-function openLine(){
-  const url=API.webhookUrl("line");
-  const err=el("div",{class:"aerr",role:"alert"});
-  const form=el("form",{novalidate:"",style:"display:flex;flex-direction:column;gap:14px"},
-    el("ol",{style:"margin:0;padding-left:20px;color:var(--muted);font-size:13px"},
-      el("li",{},"สร้าง Messaging API channel ใน LINE Developers Console"),
-      el("li",{},"คัดลอก Channel ID, Channel secret และ Channel access token มากรอกด้านล่าง"),
-      el("li",{},"นำ Webhook URL ด้านล่างไปวางในหน้า Messaging API ของ LINE แล้วกด Verify")),
-    field("ชื่อบัญชี (ตั้งเอง)","l_name","text","เช่น ร้านตัวอย่าง (LINE OA)"),
-    field("Channel ID","l_id","text"),
-    field("Channel secret","l_secret","password"),
-    field("Channel access token","l_token","password"),
-    el("div",{style:"display:flex;flex-direction:column;gap:4px;font-weight:500"},"Webhook URL",
-      el("div",{style:"display:flex;gap:8px;flex-wrap:wrap"},
-        el("input",{class:"field",readonly:"",value:url,"aria-label":"Webhook URL",style:"flex:1 1 220px"}),
-        el("button",{class:"btn",type:"button",onclick:()=>copyText(url)},"คัดลอก"))),
-    el("small",{style:"color:var(--muted)"},"ต้นแบบนี้ไม่ได้บันทึกค่า secret/token ไว้ที่ใดเลย ของจริงต้องส่งไปเก็บแบบเข้ารหัสที่ backend"),
-    err,
-    btnrow(el("button",{class:"btn",type:"button",onclick:closeModal},"ยกเลิก"),el("button",{class:"btn pri",type:"submit"},"เชื่อมต่อ")));
-  form.addEventListener("submit",e=>{
-    e.preventDefault();
-    const v=id=>form.querySelector("#"+id).value.trim();
-    if(!v("l_id")||!v("l_secret")||!v("l_token")){err.textContent="กรอก Channel ID, Channel secret และ access token ให้ครบ";return;}
-    connected("line",v("l_name")||"LINE OA");
-  });
-  openModal("เชื่อมต่อ LINE Official Account",form);
-}
-
-function openOAuth(k){
-  const names={fb:"Facebook",ig:"Instagram",x:"X"};
-  const items={fb:["เพจ ร้านตัวอย่าง","เพจ ร้านตัวอย่าง สาขา 2","เพจ ทดสอบ"],ig:["@shop_example","@shop_example.test"],x:["@shop_example"]};
-  const intro={fb:"ระบบจะพาไปหน้าอนุญาตสิทธิ์ของ Meta แล้วให้เลือกเพจที่ต้องการเชื่อม",ig:"บัญชี Instagram ต้องเป็น Business หรือ Creator ระบบจะขอสิทธิ์ผ่าน Meta",x:"ระบบจะพาไปหน้าอนุญาตสิทธิ์ของ X (OAuth 2.0) เพื่อขอสิทธิ์อ่านและส่ง DM"};
-  const cancel=el("button",{class:"btn",type:"button",onclick:closeModal},"ยกเลิก");
-  const wrap=el("div",{style:"display:flex;flex-direction:column;gap:14px"});
-  const step2=()=>{
-    wrap.replaceChildren(el("p",{role:"status",style:"margin:0"},"กำลังเชื่อมต่อกับ "+names[k]+"…"));
-    setTimeout(()=>{
-      const boxes=items[k].map((p,i)=>el("label",{class:"card",style:"cursor:pointer;padding:12px 16px"},el("input",{type:"checkbox",value:p,style:"width:20px;height:20px;accent-color:var(--accent)",...(i===0?{checked:""}:{})}),p));
-      const err=el("div",{class:"aerr",role:"alert"});
-      wrap.replaceChildren(
-        el("p",{style:"margin:0"},k==="x"?"เลือกบัญชีที่ต้องการเชื่อม":"เลือกที่ต้องการให้บอทดูแล"),
-        ...boxes,err,
-        btnrow(cancel,el("button",{class:"btn pri",onclick:()=>{
-          const sel=boxes.map(b=>b.querySelector("input")).filter(i=>i.checked).map(i=>i.value);
-          if(!sel.length){err.textContent="เลือกอย่างน้อย 1 รายการ";return;}
-          connected(k,sel.join(", "));
-        }},"เชื่อมต่อ")));
-      boxes[0].querySelector("input").focus();
-    },600);
-  };
-  wrap.append(
-    el("p",{style:"margin:0"},intro[k]),
-    k==="x"?el("p",{style:"margin:0;color:var(--warn-fg);font-size:13px"},"หมายเหตุ: X API มีค่าใช้จ่ายและโควตาจำกัด ควรประเมินก่อนใช้งานจริง"):null,
-    el("p",{style:"margin:0;color:var(--muted);font-size:13px"},"ต้นแบบนี้จำลองขั้นตอน ไม่ได้ติดต่อกับ "+names[k]+" จริง"),
-    btnrow(cancel,el("button",{class:"btn pri",type:"button",onclick:step2},"ดำเนินการต่อด้วย "+names[k])));
-  openModal("เชื่อมต่อ "+names[k],wrap);
-}
-
-function renderSettings(){
-  const box=$("#setbox");box.replaceChildren();const cfg=state.cfg;
-  const area=(label,rows,val,on)=>{const t=el("textarea",{class:"area",rows:String(rows),"aria-label":label});t.value=val;t.addEventListener("input",()=>on(t.value));return t;};
-  const radio=(v,title,desc)=>el("label",{class:"choice"},
-    el("input",{type:"radio",name:"mode",value:v,...(cfg.mode===v?{checked:""}:{}),onchange:()=>{cfg.mode=v;log("bot.mode → "+v);toast("เปลี่ยนโหมดการตอบแล้ว");}}),
-    el("div",{},el("b",{},title),el("span",{},desc)));
-  const tin=el("input",{class:"field",placeholder:"เพิ่มหัวข้อ เช่น ขอใบกำกับภาษี","aria-label":"เพิ่มหัวข้อที่ส่งต่อพนักงาน"});
-  const add=()=>{const v=tin.value.trim();if(v&&!cfg.topics.includes(v)){cfg.topics.push(v);renderSettings();$("#setbox input.field").focus();}};
-  tin.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();add();}});
-  box.append(
-    el("section",{class:"panel"},
-      el("h2",{},"บทบาทและน้ำเสียง"),
-      el("p",{class:"hint"},"ใช้เป็นคำสั่งระบบ (system prompt) เมื่อต่อ LLM จริง ต้นแบบนี้ยังไม่ได้ใช้ข้อความนี้ในการตอบ"),
-      area("บทบาทและน้ำเสียงของบอท",4,cfg.role,v=>{cfg.role=v;})),
-    el("section",{class:"panel"},
-      el("h2",{},"โหมดการตอบ"),
-      el("p",{class:"hint"},"ช่วงแรกแนะนำโหมดร่างคำตอบ แล้วค่อยเปิดอัตโนมัติเมื่อคุณภาพนิ่ง"),
-      el("div",{class:"modes"},
-        radio("auto","ตอบอัตโนมัติ","บอทตอบลูกค้าทันทีจากฐานความรู้"),
-        radio("draft","ร่างให้แอดมินกดส่ง","AI เตรียมร่างคำตอบ แอดมินตรวจแล้วกดส่งเอง"))),
-    el("section",{class:"panel"},
-      el("h2",{},"หัวข้อที่ส่งต่อพนักงานเสมอ"),
-      el("p",{class:"hint"},"ถ้าข้อความลูกค้ามีคำเหล่านี้ บอทจะไม่ตอบเอง และสลับเป็นโหมดพนักงาน"),
-      el("div",{class:"topics"},...cfg.topics.map((t,i)=>el("span",{class:"topic"},t,el("button",{type:"button","aria-label":"ลบหัวข้อ "+t,onclick:()=>{cfg.topics.splice(i,1);renderSettings();}},"×")))),
-      el("div",{class:"addrow"},tin,el("button",{class:"btn",type:"button",onclick:add},"เพิ่มหัวข้อ")),
-      el("p",{class:"hint"},"ตรวจจากข้อความที่ลูกค้าส่งเข้ามา ก่อนให้บอทตอบ")),
-    el("section",{class:"panel"},
-      el("h2",{},"ข้อความเมื่อบอทไม่พบคำตอบ"),
-      el("p",{class:"hint"},"บอทจะส่งข้อความนี้ แล้วส่งต่อให้พนักงาน แทนการเดาคำตอบ"),
-      area("ข้อความเมื่อบอทไม่พบคำตอบ",3,cfg.fallback,v=>{cfg.fallback=v;})),
-    el("div",{class:"span2 actions"},
-      el("button",{class:"btn danger",type:"button",onclick:()=>{if(confirm("ล้างข้อมูลทั้งหมดของบัญชีนี้ในเบราว์เซอร์ แล้วกลับไปใช้ข้อมูลตัวอย่าง?")){API.resetState();location.reload();}}},"รีเซ็ตเป็นข้อมูลตัวอย่าง"),
-      el("button",{class:"btn pri push",type:"button",onclick:()=>{log("bot.settings.saved");persist();toast("บันทึกการตั้งค่าแล้ว");}},"บันทึก")));
-}
-function renderLog(){const b=$("#log");b.replaceChildren(...(state.log.length?state.log:["(ยังไม่มีเหตุการณ์)"]).map(t=>el("div",{},t)));}
-/* ---------- dashboard ---------- */
-const CHART_COL={line:"#1baf7a",fb:"#2a78d6",ig:"#e87ba4",x:"#4a3aa7"};
-const BOT_COL="#2a78d6",STAFF_COL="#eb6834";
-const ANALYTICS=(()=>{
-  const rng=a=>()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};
-  const r=rng(20261007),days=30,mon=["ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."];
-  const base={line:58,fb:34,ig:21,x:5},dow=[0.8,1.05,1.1,1.05,1.1,1.15,0.9];
-  const A={days,labels:[],tips:[],ch:{line:[],fb:[],ig:[],x:[]},bot:[],staff:[]};
-  const now=new Date();
-  for(let d=days-1;d>=0;d--){
-    const dt=new Date(now.getFullYear(),now.getMonth(),now.getDate()-d);
-    A.labels.push(dt.getDate()+" "+mon[dt.getMonth()]);
-    A.tips.push(dt.toLocaleDateString("th-TH",{weekday:"long",day:"numeric",month:"long"}));
-    let tot=0;
-    for(const k in base){const v=Math.round(base[k]*dow[dt.getDay()]*(0.8+0.4*r()));A.ch[k].push(v);tot+=v;}
-    const bot=Math.round(tot*(0.6+0.12*r()));A.bot.push(bot);A.staff.push(tot-bot);
-  }
-  return A;
-})();
-const HOUR_W=[1,1,1,1,1,2,4,7,9,10,10,11,12,10,9,9,10,11,12,13,12,9,5,2];
-const TOPICS=[["ราคาและโปรโมชัน",210,40],["การจัดส่ง",180,55],["สีและสต็อกสินค้า",150,35],["วิธีชำระเงิน",60,85],["เปลี่ยนหรือคืนสินค้า",25,70],["ร้องเรียน",4,48]];
-function renderDash(){
-  const d=state.dash,A=ANALYTICS,N=d.range,lo=A.days-N,live=state.counts.ch||{};
-  document.querySelectorAll("[data-range]").forEach(b=>{const on=+b.dataset.range===N;b.classList.toggle("on",on);b.setAttribute("aria-pressed",String(on));});
-  $("#dtable").textContent=d.table?"ดูเป็นกราฟ":"ดูเป็นตาราง";
-  const sum=a=>a.reduce((x,y)=>x+y,0);
-  const cats=A.labels.slice(lo),tips=A.tips.slice(lo);
-  const chSeries=Object.keys(CH).map(k=>{const v=A.ch[k].slice(lo);v[N-1]+=live[k]||0;return{name:CH[k].label,color:CHART_COL[k],values:v};});
-  const bot=A.bot.slice(lo);bot[N-1]+=state.counts.bot||0;
-  const staff=A.staff.slice(lo);staff[N-1]+=state.counts.staff||0;
-  const totalMsgs=sum(chSeries.map(s=>sum(s.values)));
-  const botRate=Math.round(sum(bot)/Math.max(1,sum(bot)+sum(staff))*100);
-  const waiting=state.convs.filter(needsStaff).length,open=state.convs.filter(c=>!c.closed).length;
-  const kpi=(v,l,cls)=>el("div",{class:"kpi"+(cls?" "+cls:"")},el("b",{},String(v)),el("span",{},l));
-  $("#kpis").replaceChildren(
-    kpi(waiting,"รอพนักงานตอบตอนนี้",waiting?"urgent":""),
-    kpi(open,"บทสนทนาที่ยังเปิดอยู่"),
-    kpi(totalMsgs.toLocaleString("en-US"),`ข้อความเข้า ${N} วัน`),
-    kpi(botRate+"%","บอทตอบเองได้"),
-    kpi("1 นาที 48 วิ","เวลาตอบแรกเฉลี่ย (ตัวอย่าง)"));
-  const hs=sum(HOUR_W),hours=HOUR_W.map(w=>Math.round(totalMsgs*w/hs));
-  const chTot=chSeries.map(s=>({name:s.name,color:s.color,v:sum(s.values)})).sort((a,b)=>b.v-a.v);
-  const k=N/30,topics=TOPICS.map(t=>[t[0],Math.round(t[1]*k),Math.round(t[2]*k)]);
-  const specs=[
-    {wide:true,title:"ข้อความเข้าต่อวัน แยกตามช่องทาง",sub:`${N} วันล่าสุด`,spec:{kind:"stack",cats,tips,series:chSeries,catHeader:"วัน"}},
-    {title:"บอทกับพนักงาน ใครตอบมากกว่า",sub:"จำนวนข้อความที่ตอบต่อวัน",spec:{kind:"line",cats,tips,series:[{name:"บอทตอบ",color:BOT_COL,values:bot},{name:"พนักงานตอบ",color:STAFF_COL,values:staff}],catHeader:"วัน"}},
-    {title:"ช่องทางที่ลูกค้าทักมากที่สุด",sub:`ข้อความเข้ารวม ${N} วัน`,spec:{kind:"hbar",cats:chTot.map(x=>x.name),series:[{name:"ข้อความเข้า",color:"#2a78d6",values:chTot.map(x=>x.v)}],catColors:chTot.map(x=>x.color),catHeader:"ช่องทาง"}},
-    {title:"ลูกค้าทักช่วงเวลาไหน",sub:"ข้อความเข้าแยกตามชั่วโมง ใช้วางเวรพนักงาน",spec:{kind:"stack",cats:hours.map((_,i)=>String(i).padStart(2,"0")),tips:hours.map((_,i)=>`${String(i).padStart(2,"0")}:00–${String(i).padStart(2,"0")}:59 น.`),series:[{name:"ข้อความเข้า",color:"#0F766E",values:hours}],every:3,peak:true,catHeader:"ชั่วโมง"}},
-    {title:"หัวข้อที่ลูกค้าถามบ่อย",sub:"ส่วนสีส้มคือเรื่องที่บอทตอบไม่ได้ ควรเพิ่มเอกสารในฐานความรู้",spec:{kind:"hbar",cats:topics.map(t=>t[0]),series:[{name:"บอทตอบได้",color:BOT_COL,values:topics.map(t=>t[1])},{name:"ส่งต่อพนักงาน",color:STAFF_COL,values:topics.map(t=>t[2])}],catHeader:"หัวข้อ"}}
-  ];
-  const holders=specs.map(c=>{
-    c.spec.title=c.title;
-    const body=el("div",{style:"display:flex;flex-direction:column;gap:10px"});
-    return {c,body,sec:el("section",{class:"cc"+(c.wide?" wide":"")},el("h2",{},c.title),c.sub?el("p",{},c.sub):null,body)};
-  });
-  $("#charts").replaceChildren(...holders.map(x=>x.sec));
-  holders.forEach(({c,body})=>{
-    if(d.table)Charts.table(body,c.spec);
-    else{c.spec.width=Math.max(300,Math.round(body.getBoundingClientRect().width));Charts.render(body,c.spec);}
-  });
-}
-function render(){
-  $("#view-inbox").classList.toggle("chat",!!state.chat);
-  const waitingN=state.convs.filter(needsStaff).length,rb=$("#railbadge");
-  rb.textContent=waitingN;rb.hidden=!waitingN;rb.setAttribute("aria-label",`รอพนักงาน ${waitingN} ราย`);
-  const wsName=(API.getUser()||{}).workspace||"Social Media Chatbot Hub";
-  document.title=(waitingN?`(${waitingN}) `:"")+wsName+" · Hub";
-  document.querySelectorAll(".view").forEach(v=>v.classList.toggle("on",v.id==="view-"+state.view));
-  document.querySelectorAll(".rail .rb").forEach(b=>b.classList.toggle("on",b.dataset.view===state.view));
-  if(state.view==="inbox"){const keep=document.activeElement&&document.activeElement.id==="q";renderChips();renderList();renderConv();renderSide();if(keep)$("#q").focus();}
-  if(state.view==="kb")renderKB();
-  if(state.view==="channels")renderChannels();
-  if(state.view==="settings")renderSettings();
-  if(state.view==="dash")renderDash();
-  if(state.view==="api")renderLog();
-  persist();
-}
-
-/* ---------- events ---------- */
-document.querySelectorAll(".rail .rb").forEach(b=>b.addEventListener("click",()=>{state.view=b.dataset.view;Charts.hideTip();render();}));
-$("#q").addEventListener("input",e=>{state.q=e.target.value;renderList();});
-$("#simulate").addEventListener("click",()=>{
-  const s=SAMPLES[Math.floor(Math.random()*SAMPLES.length)];
-  let c=state.convs.find(x=>x.name===s.name);
-  if(!c){c={id:"c"+(state.nextId++),name:s.name,ch:s.ch,mode:"bot",unread:0,closed:false,msgs:[]};state.convs.unshift(c);}
-  c.closed=false;receive(c,s.t);toast("มีข้อความใหม่จาก "+s.name);
-});
-$("#file").addEventListener("change",e=>{
-  [...e.target.files].forEach(f=>{
-    const d={name:f.name,st:"embedding"};state.kb.push(d);log("kb.upload "+f.name);
-    setTimeout(()=>{d.st="ready";log("kb.ready "+f.name);if(state.view==="kb")render();},1500);
-  });
-  e.target.value="";render();
-});
-$("#genkey").addEventListener("click",()=>{const r=Math.random().toString(36).slice(2,6);$("#key").textContent="hub_live_••••••••••••"+r;log("api_key.regenerated");toast("สร้าง API key ใหม่แล้ว (จำลอง)");});
-$("#whtest").addEventListener("click",()=>{
-  if(!$("#whon").checked){toast("ปิดการส่ง webhook อยู่");return;}
-  log("POST "+$("#wh").value+" event=ping → 200 OK (จำลอง)");toast("ส่งทดสอบแล้ว");
-});
-/* ---------- persistence (ผ่าน api.js) ---------- */
-const PERSIST_KEYS=["convs","chan","kb","cfg","counts","log","nextId"];
-function persist(){const o={};PERSIST_KEYS.forEach(k=>{o[k]=state[k];});API.saveState(o);}
-function hydrate(){
-  const saved=API.loadState();
-  if(!saved)return;
-  PERSIST_KEYS.forEach(k=>{if(saved[k]!==undefined)state[k]=saved[k];});
-  state.kb.forEach(d=>{if(d.st==="embedding")d.st="ready";});
-}
-
-/* ---------- auth ---------- */
-let signupMode=false;
-function setAuthMode(on){
-  signupMode=on;
-  $("#authtitle").textContent=on?"สมัครสมาชิก":"เข้าสู่ระบบ";
-  $("#asubmit").textContent=on?"สมัครสมาชิก":"เข้าสู่ระบบ";
-  $("#atoggle").textContent=on?"มีบัญชีแล้ว? เข้าสู่ระบบ":"ยังไม่มีบัญชี? สมัครสมาชิก";
-  $("#signupfields").style.display=on?"flex":"none";
-  $("#aerr").textContent="";
-}
-$("#atoggle").addEventListener("click",()=>setAuthMode(!signupMode));
-$("#authform").addEventListener("submit",async e=>{
-  e.preventDefault();
-  const btn=$("#asubmit");btn.disabled=true;$("#aerr").textContent="";
-  try{
-    const email=$("#aemail").value.trim(),password=$("#apass").value;
-    if(signupMode)await API.signup({name:$("#aname").value.trim(),workspace:$("#awork").value.trim(),email,password});
-    else await API.login(email,password);
-    location.reload();
-  }catch(err){
-    $("#aerr").textContent=err.message;btn.disabled=false;
-  }
-});
-$("#logout").addEventListener("click",()=>{API.logout();location.reload();});
-
-let resizeT=null;window.addEventListener("resize",()=>{clearTimeout(resizeT);resizeT=setTimeout(()=>{if(state.view==="dash"&&$("#app").style.display!=="none")renderDash();},150);});
-document.querySelectorAll("[data-range]").forEach(b=>b.addEventListener("click",()=>{state.dash.range=+b.dataset.range;Charts.hideTip();render();}));
-$("#dtable").addEventListener("click",()=>{state.dash.table=!state.dash.table;Charts.hideTip();render();});
-
-/* ---------- start ---------- */
-const user=API.getUser();
-if(!user){
-  $("#app").style.display="none";
-  $("#auth").hidden=false;
-  $("#aemail").focus();
-}else{
-  $("#logout").textContent=(user.name||user.email).charAt(0).toUpperCase();
-  $("#logout").title="ออกจากระบบ ("+user.email+")";
-  document.title=user.workspace+" · Social Media Chatbot Hub";
-  hydrate();
-  if(!state.log.length)log("ระบบเริ่มทำงาน (ต้นแบบ)");
-  render();
-}
-</script>
+<script src="app.js"></script>
 </body>
 </html>

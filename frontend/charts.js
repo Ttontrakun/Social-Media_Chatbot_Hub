@@ -33,6 +33,9 @@
     if (!(max > 0)) return { max: 1, step: 1 };
     var raw = max / ticks, mag = Math.pow(10, Math.floor(Math.log10(raw))), norm = raw / mag;
     var step = (norm <= 1 ? 1 : norm <= 2 ? 2 : norm <= 5 ? 5 : 10) * mag;
+    // ทุกกราฟในระบบนี้นับจำนวนข้อความ จึงใช้ขั้นเป็นจำนวนเต็มเสมอ
+    // ไม่งั้นแกนจะขึ้นป้ายซ้ำ เช่น 1 1 2 2 เมื่อค่าสูงสุดน้อย
+    if (step < 1) step = 1;
     return { max: Math.ceil(max / step - 1e-9) * step, step: step };
   }
   function roundedTop(x, y, w, hgt, r) {

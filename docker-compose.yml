@@ -1,7 +1,97 @@
 services:
-  frontend:
-    build: .
-    container_name: socialmedia_chatbot_hub
-    ports:
-      - "8080:80"
+  db:
+    image: postgres:16-alpine
+    container_name: hub_db
     restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-hub}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-hub}
+      POSTGRES_DB: ${POSTGRES_DB:-hub}
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-hub} -d ${POSTGRES_DB:-hub}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  qdrant:
+    image: qdrant/qdrant:v1.12.4
+    container_name: hub_qdrant
+    restart: unless-stopped
+    environment:
+      QDRANT__SERVICE__API_KEY: ${QDRANT_API_KEY:-}
+    volumes:
+      - qdrant_data:/qdrant/storage
+
+  backend:
+    build: ./backend
+    container_name: hub_backend
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+      qdrant:
+        condition: service_started
+    environment:
+      NODE_ENV: production
+      PORT: 4000
+      DATABASE_URL: postgresql://${POSTGRES_USER:-hub}:${POSTGRES_PASSWORD:-hub}@db:5432/${POSTGRES_DB:-hub}?schema=public
+      JWT_SECRET: ${JWT_SECRET:?ต้องตั้งค่า JWT_SECRET ในไฟล์ .env}
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY:?ต้องตั้งค่า ENCRYPTION_KEY ในไฟล์ .env}
+      COOKIE_SECURE: ${COOKIE_SECURE:-0}
+      PUBLIC_URL: ${PUBLIC_URL:-http://localhost:8080}
+
+      QDRANT_URL: http://qdrant:6333
+      QDRANT_API_KEY: ${QDRANT_API_KEY:-}
+      QDRANT_COLLECTION: ${QDRANT_COLLECTION:-hub_chunks}
+
+      EMBEDDING_BASE_URL: ${EMBEDDING_BASE_URL:-}
+      EMBEDDING_API_KEY: ${EMBEDDING_API_KEY:-}
+      EMBEDDING_MODEL: ${EMBEDDING_MODEL:-bge-m3}
+      EMBEDDING_DIM: ${EMBEDDING_DIM:-1024}
+
+      LLM_BASE_URL: ${LLM_BASE_URL:-}
+      LLM_API_KEY: ${LLM_API_KEY:-}
+      LLM_MODEL: ${LLM_MODEL:-gpt-oss-120b}
+      LLM_MAX_TOKENS: ${LLM_MAX_TOKENS:-512}
+      LLM_TIMEOUT_MS: ${LLM_TIMEOUT_MS:-60000}
+
+      META_APP_ID: ${META_APP_ID:-}
+      META_APP_SECRET: ${META_APP_SECRET:-}
+      META_VERIFY_TOKEN: ${META_VERIFY_TOKEN:-}
+
+      OCR_API_URL: ${OCR_API_URL:-}
+      OCR_LANG: ${OCR_LANG:-th}
+      OCR_MAX_PAGES: ${OCR_MAX_PAGES:-30}
+      OCR_DPI: ${OCR_DPI:-200}
+      OCR_MIN_TEXT_CHARS: ${OCR_MIN_TEXT_CHARS:-200}
+
+      TEXT_CHUNK_SIZE: ${TEXT_CHUNK_SIZE:-2800}
+      EMBEDDING_BATCH_SIZE: ${EMBEDDING_BATCH_SIZE:-32}
+      EMBEDDING_PARALLEL_BATCHES: ${EMBEDDING_PARALLEL_BATCHES:-2}
+      PARENT_CHUNK_MAX_CHARS: ${PARENT_CHUNK_MAX_CHARS:-6000}
+
+      RERANK_URL: ${RERANK_URL:-}
+      RERANK_API_KEY: ${RERANK_API_KEY:-}
+      RERANK_MODEL: ${RERANK_MODEL:-}
+      RAG_QUERY_SYNONYMS: ${RAG_QUERY_SYNONYMS:-}
+
+      UPLOAD_MAX_BYTES: ${UPLOAD_MAX_BYTES:-20971520}
+    # เซิร์ฟเวอร์ในไทยควรตั้งโซนเวลาให้ตรง ไม่งั้นกราฟรายวันจะเหลื่อม
+    env_file:
+      - path: .env
+        required: false
+
+  frontend:
+    build: ./frontend
+    container_name: hub_frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "${WEB_PORT:-8080}:80"
+
+volumes:
+  db_data:
+  qdrant_data:
