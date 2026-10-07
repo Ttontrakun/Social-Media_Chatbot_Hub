@@ -1,0 +1,7 @@
+services:
+  frontend:
+    build: .
+    container_name: socialmedia_chatbot_hub
+    ports:
+      - "8080:80"
+    restart: unless-stopped
